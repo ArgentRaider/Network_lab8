@@ -122,7 +122,6 @@ void ClientQueue::Client_t(unsigned int inx) {
 
 	char ipAddr[20];
 	printf("Received a socket.\nIndex: %u\nIP: %s\n\n", inx, inet_ntop(AF_INET, &(sAddr.sin_addr), ipAddr, 20));
-	printf("Succeeded to create a thread.\n");
 
 	//==================  WORK AREA ===================================
 	WebAgent agent = WebAgent(sClient);

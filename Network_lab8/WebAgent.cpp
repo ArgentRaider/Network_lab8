@@ -35,9 +35,11 @@ void WebAgent::work()
 		}
 		if (std::strncmp(buffer + ret - 4, "\r\n\r\n", 4) == 0) {
 			HttpRequest request = HttpRequest(buffer, ret);
+			if (request.Method() == HttpRequest::GET) std::cout << "GET" << std::endl;
+			else std::cout << "POST" << std::endl;
 			string filePath = request.FilePath();
-			filePath = WebRoute::route(filePath);
-			std::cout << filePath << std::endl;
+			string realPath = WebRoute::route(filePath);
+			std::cout << realPath << std::endl;
 		}
 	}
 }
