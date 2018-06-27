@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstring>
 #include "HttpRequest.h"
+#include "HttpResponse.h"
 #include "WebRoute.h"
 using std::bad_alloc;
 
@@ -39,7 +40,9 @@ void WebAgent::work()
 			else std::cout << "POST" << std::endl;
 			string filePath = request.FilePath();
 			string realPath = WebRoute::route(filePath);
-			std::cout << realPath << std::endl;
+			HttpResponse response = HttpResponse();
+			string responseText = response.toString();
+			ret = send(client, responseText.c_str(), responseText.size(), 0);
 		}
 	}
 }
