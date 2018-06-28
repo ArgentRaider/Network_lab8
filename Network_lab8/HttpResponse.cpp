@@ -58,7 +58,7 @@ ifstream::pos_type HttpResponse::fileSize(string filename)
 	return in.tellg();
 }
 
-void HttpResponse::GET(string route, string realpath)
+void HttpResponse::GET(const string& route, const string& realpath)
 {
 	if (err)
 	{
@@ -114,6 +114,31 @@ void HttpResponse::GET(string route, string realpath)
 	buf_ptr += length;
 }
 
-void HttpResponse::POST(string login, string pass)
+void HttpResponse::POST(const string& login, const string& pass, const string& path)
 {
+	if (path.substr(path.size() - 6).compare("dopost") == 0) {
+		const string content_type = "Content-Type: text/plain\r\n";
+		const string content_length = std::to_string(login.size() + pass.size() + 1);
+
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, content_type.c_str(), content_type.size());
+		buf_ptr += content_type.size();
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Length: ", 16);
+		buf_ptr += 16;
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, content_length.c_str(), content_length.size());
+		buf_ptr += content_length.size();
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
+		buf_ptr += 2;
+
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
+		buf_ptr += 2;
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, login.c_str(), login.size());
+		buf_ptr += login.size();
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, " ", 1);
+		buf_ptr += 1;
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, pass.c_str(), pass.size());
+		buf_ptr += pass.size();
+	}
+	else {
+		this->status = 404;
+	}
 }

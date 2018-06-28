@@ -10,7 +10,7 @@ using std::bad_alloc;
 WebAgent::WebAgent(SOCKET client):client(client), err(false)
 {
 	try {
-		buffer = new char[BUF_SIZE];
+		buffer = new char[BUF_SIZE+1];
 	}
 	catch (const bad_alloc&) {
 		std::cerr << "FATAL ERROR::Bad Allocation for the buffer." << std::endl;
@@ -34,7 +34,8 @@ void WebAgent::work()
 		if (ret == SOCKET_ERROR || ret == 0) {		// exit the loop
 			break;
 		}
-		if (std::strncmp(buffer + ret - 4, "\r\n\r\n", 4) == 0) {
+		buffer[ret] = 0;
+		if (std::strstr(buffer, "\r\n\r\n") != nullptr) {
 			char* firstLineEnd = buffer;
 			while (*firstLineEnd != '\r') firstLineEnd++;
 			string firstLine = string(buffer, firstLineEnd - buffer);
@@ -46,8 +47,9 @@ void WebAgent::work()
 			HttpResponse response = HttpResponse();
 			if (request.Method() == HttpRequest::GET)
 				response.GET(filePath, realPath);
-			else
-				;
+			else {
+				response.POST(request["login"], request["pass"], filePath);
+			}
 			string responseText = response.toString();
 			ret = send(client, responseText.c_str(), responseText.size(), 0);
 		}

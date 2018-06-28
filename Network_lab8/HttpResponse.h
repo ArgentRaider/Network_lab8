@@ -13,8 +13,8 @@ public:
 	int getStatusCode();
 	void setStatusCode(const int& status);
 	const string toString();
-	void GET(string route, string realpath);
-	void POST(string login, string pass);
+	void GET(const string& route, const string& realpath);
+	void POST(const string& login, const string& pass, const string& path);
 
 private:
 	const int BUF_SIZE = 100000;
