@@ -34,7 +34,7 @@ void WebAgent::work()
 		if (ret == SOCKET_ERROR || ret == 0) {		// exit the loop
 			break;
 		}
-		if (std::strncmp(buffer + ret - 4, "\r\n\r\n", 4) == 0) {
+		if (std::string(buffer).find("HTTP/1.1") != string::npos) {
 			char* firstLineEnd = buffer;
 			while (*firstLineEnd != '\r') firstLineEnd++;
 			string firstLine = string(buffer, firstLineEnd - buffer);
