@@ -1,8 +1,11 @@
 #include "HttpResponse.h"
 #include <iostream>
 #include <cstring>
+#include <filesystem>
+
 using std::bad_alloc;
 using namespace std;
+namespace fs = std::experimental::filesystem;
 
 HttpResponse::HttpResponse(int status) : status(status), err(false), buf_ptr(0)
 {
@@ -33,14 +36,14 @@ void HttpResponse::setStatusCode(const int & status)
 
 const string HttpResponse::toString()
 {
-	string res = string("HTTP/1.1 " + this->status);
+	
+	string res = string("HTTP/1.1 " + std::to_string(this->status));
 	if (this->status == 200) {
-		res += " OK";
+		res += " OK\r\n";
 	}
 	else if (this->status == 404) {
-		res += " Not Found";
+		res += " Not Found\r\n";
 	}
-	res += "\r\n\r\n";
 	if (this->status == 200) {
 		res += string(buffer, buf_ptr);
 	}
@@ -71,7 +74,8 @@ void HttpResponse::GET(string route, string realpath)
 	cout << "In folder: " << folder << endl;
 	int length = fileSize(realpath);
 	string file_length = to_string(length);
-	if (folder.compare("txt") == 0)
+	string extension = fs::path(realpath).extension().string();
+	if (extension.compare(".txt") == 0)
 	{
 		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Length: ", 16);
 		buf_ptr += 16;
@@ -83,8 +87,8 @@ void HttpResponse::GET(string route, string realpath)
 		buf_ptr += 24;
 	}
 
-	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n\r\n", 4);
-	buf_ptr += 4;
+	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
+	buf_ptr += 2;
 	if (buf_ptr + length > BUF_SIZE)
 	{
 		cout << "File too large" << endl;

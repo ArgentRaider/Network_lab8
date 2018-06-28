@@ -45,7 +45,7 @@ int main(){
 	//Initialize the ClientQueue
 	if (ClientQueue::Init()) {
 #ifdef _DEBUG
-		printf("ClientQueue initialized!\n");
+		printf("Server Initialized!\n\n");
 #endif // _DEBUG
 	}
 

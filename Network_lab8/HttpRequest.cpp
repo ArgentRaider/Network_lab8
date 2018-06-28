@@ -26,7 +26,6 @@ HttpRequest::HttpRequest(const char header[], const size_t headerLen)
 	const char* tmp = hPtr;
 	while (*tmp != ' ' && *tmp != 0) tmp++;
 	filePath = string(hPtr, tmp - hPtr);
-	filePath = fs::path(filePath).string();
 }
 
 
