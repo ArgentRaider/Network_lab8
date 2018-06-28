@@ -52,7 +52,6 @@ void WebAgent::work()
 				response.POST(filePath, buffer, ret);
 			}
 			string responseText = response.toString();
-			std::cout << responseText << std::endl;
 			ret = send(client, responseText.c_str(), responseText.size(), 0);
 		}
 	}
