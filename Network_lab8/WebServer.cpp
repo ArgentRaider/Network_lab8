@@ -41,7 +41,7 @@ int main(){
 		printf("Invalid Winsock version!\n");
 		return 1;
 	}
-	
+
 	//Initialize the ClientQueue
 	if (ClientQueue::Init()) {
 #ifdef _DEBUG

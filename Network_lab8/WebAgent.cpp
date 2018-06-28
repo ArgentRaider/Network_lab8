@@ -16,7 +16,7 @@ WebAgent::WebAgent(SOCKET client):client(client), err(false)
 		std::cerr << "FATAL ERROR::Bad Allocation for the buffer." << std::endl;
 		err = true;
 	}
-	
+
 }
 
 WebAgent::~WebAgent()
@@ -41,6 +41,10 @@ void WebAgent::work()
 			string filePath = request.FilePath();
 			string realPath = WebRoute::route(filePath);
 			HttpResponse response = HttpResponse();
+			if (request.Method() == HttpRequest::GET)
+				response.GET(filePath, realPath);
+			else
+				;
 			string responseText = response.toString();
 			ret = send(client, responseText.c_str(), responseText.size(), 0);
 		}

@@ -18,7 +18,7 @@ namespace ClientQueue {							// Organized as a Binary Tree (implemented in arra
 
 	std::mutex connChangeMutex;			// If connection status may change, lock this mutex first.
 	std::condition_variable allBusy;
-	
+
 	int freeNum = MAX_SOCKETS;
 	bool initialized = false;			// AcceptClient_t() works only when initialized == true
 
@@ -39,7 +39,7 @@ namespace ClientQueue {							// Organized as a Binary Tree (implemented in arra
 				subFreeInx[i] = i;
 			}
 			return true;
-		}		
+		}
 		return false;
 	}
 	// Destructor
@@ -55,7 +55,7 @@ namespace ClientQueue {							// Organized as a Binary Tree (implemented in arra
 				connChangeMutex.lock();
 			}
 		}
-		
+
 		freeNum = MAX_SOCKETS;
 		allBusy.notify_one();		// in case the AcceptClient_t() is blocked
 		connChangeMutex.unlock();
@@ -88,7 +88,7 @@ namespace ClientQueue {							// Organized as a Binary Tree (implemented in arra
 void ClientQueue::AcceptClient_t(SOCKET slisten) {
 	SOCKADDR_IN remoteAddr;
 	int nAddrlen = sizeof(remoteAddr);
-	
+
 	std::unique_lock<std::mutex> connChange(connChangeMutex);
 
 	while (initialized) {
@@ -126,7 +126,7 @@ void ClientQueue::Client_t(unsigned int inx) {
 	//==================  WORK AREA ===================================
 	WebAgent agent = WebAgent(sClient);
 	agent.work();
-	
+
 	closesocket(sClient);
 	//=================================================================
 	std::lock_guard<std::mutex> lock(connChangeMutex);
