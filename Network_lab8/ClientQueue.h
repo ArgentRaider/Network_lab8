@@ -97,7 +97,7 @@ void ClientQueue::AcceptClient_t(SOCKET slisten) {
 			break;
 
 		connChange.unlock();						// manually unlock the mutex since accpet could be blocked...
-		printf("Waiting for connecting request...\nFree ports:%d\n", freeNum);
+		//printf("Waiting for connecting request...\nFree ports:%d\n", freeNum);
 		SOCKET sClient = accept(slisten, (SOCKADDR *)&remoteAddr, &nAddrlen);
 		connChange.lock();							// then manually lock it again...
 
@@ -121,7 +121,7 @@ void ClientQueue::Client_t(unsigned int inx) {
 	SOCKADDR_IN sAddr = socketAddrArray[inx];
 
 	char ipAddr[20];
-	printf("Received a socket.\nIndex: %u\nIP: %s\n\n", inx, inet_ntop(AF_INET, &(sAddr.sin_addr), ipAddr, 20));
+//	printf("Received a socket.\nIndex: %u\nIP: %s\n\n", inx, inet_ntop(AF_INET, &(sAddr.sin_addr), ipAddr, 20));
 
 	//==================  WORK AREA ===================================
 	WebAgent agent = WebAgent(sClient);
@@ -165,10 +165,10 @@ int ClientQueue::AddClient(SOCKET sClient, SOCKADDR_IN clientAddr) {		// Set a n
 		Threads[freeInx].join();
 	}
 	Threads[freeInx] = std::thread(Client_t, freeInx);
-	printf("=================================\n");
-	printf("A new client socket accpeted.\n");
-	printf("Free ports: %d\n", freeNum);
-	printf("=================================\n");
+	//printf("=================================\n");
+	//printf("A new client socket accpeted.\n");
+	//printf("Free ports: %d\n", freeNum);
+	//printf("=================================\n");
 	return freeInx;					// Useless return
 }
 
@@ -183,10 +183,10 @@ int ClientQueue::RemoveClient(unsigned int inx) {
 		node = parent;
 	}
 	freeNum++;
-	printf("=================================\n");
-	printf("A client closed its connection.\n");
-	printf("Free ports: %d\n", freeNum);
-	printf("=================================\n");
+	//printf("=================================\n");
+	//printf("A client closed its connection.\n");
+	//printf("Free ports: %d\n", freeNum);
+	//printf("=================================\n");
 	allBusy.notify_one();	// notify the AcceptClient_t() thread if it is blocked
 	return inx;				// Useless return
 }

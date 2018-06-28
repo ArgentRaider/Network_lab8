@@ -1,8 +1,11 @@
 #include "HttpResponse.h"
 #include <iostream>
 #include <cstring>
+#include <filesystem>
+
 using std::bad_alloc;
 using namespace std;
+namespace fs = std::experimental::filesystem;
 
 HttpResponse::HttpResponse(int status) : status(status), err(false), buf_ptr(0)
 {
@@ -33,14 +36,13 @@ void HttpResponse::setStatusCode(const int & status)
 
 const string HttpResponse::toString()
 {
-	string res = string("HTTP/1.1");
+	string res = string("HTTP/1.1 " + std::to_string(this->status));
 	if (this->status == 200) {
-		res += " 200 OK";
+		res += " OK\r\n";
 	}
 	else if (this->status == 404) {
-		res += " 404 Not Found";
+		res += " Not Found\r\n";
 	}
-	res += "\r\n";
 
 	if (this->status == 200) {
 		res += string(buffer, buf_ptr);
@@ -74,7 +76,9 @@ void HttpResponse::GET(string route, string realpath)
 	int length = fileSize(realpath);
 	string file_length = to_string(length);
 	cout << "File length: " << file_length << endl;
-	if (folder.compare("txt") == 0)
+
+	string extension = fs::path(realpath).extension().string();
+	if (extension.compare(".txt") == 0)
 	{
 		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Type: text/plain\r\n", 26);
 		buf_ptr += 26;
@@ -85,7 +89,7 @@ void HttpResponse::GET(string route, string realpath)
 		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
 		buf_ptr += 2;
 	}
-	else if (folder.compare("img") == 0)
+	else if (extension.compare(".jpg") == 0)
 	{
 		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Type: image/jpeg\r\n", 26);
 		buf_ptr += 25;
@@ -96,7 +100,7 @@ void HttpResponse::GET(string route, string realpath)
 		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
 		buf_ptr += 2;
 	}
-	else if (folder.compare("html") == 0)
+	else if (extension.compare(".html") == 0)
 	{
 		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Type: text/html\r\n", 26);
 		buf_ptr += 25;
@@ -115,7 +119,6 @@ void HttpResponse::GET(string route, string realpath)
 		cout << "File too large" << endl;
 	}
 	fin.read(buffer + buf_ptr, length);
-	 // strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "A test text", 11);
 	buf_ptr += length;
 }
 

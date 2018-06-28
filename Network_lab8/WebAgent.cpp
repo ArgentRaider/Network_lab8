@@ -35,9 +35,12 @@ void WebAgent::work()
 			break;
 		}
 		if (std::strncmp(buffer + ret - 4, "\r\n\r\n", 4) == 0) {
+			char* firstLineEnd = buffer;
+			while (*firstLineEnd != '\r') firstLineEnd++;
+			string firstLine = string(buffer, firstLineEnd - buffer);
+			std::cout << firstLine << std::endl;
+
 			HttpRequest request = HttpRequest(buffer, ret);
-			if (request.Method() == HttpRequest::GET) std::cout << "GET" << std::endl;
-			else std::cout << "POST" << std::endl;
 			string filePath = request.FilePath();
 			string realPath = WebRoute::route(filePath);
 			HttpResponse response = HttpResponse();
@@ -46,6 +49,7 @@ void WebAgent::work()
 			else
 				;
 			string responseText = response.toString();
+			std::cout << responseText << std::endl;
 			ret = send(client, responseText.c_str(), responseText.size(), 0);
 		}
 	}
