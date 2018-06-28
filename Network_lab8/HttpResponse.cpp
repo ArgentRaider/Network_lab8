@@ -57,6 +57,16 @@ ifstream::pos_type HttpResponse::fileSize(string filename)
 	return in.tellg();
 }
 
+void HttpResponse::parseLoginAndPass(const char header[], const size_t headerLen, string & login, string & pass)
+{
+	string header_str = string(header, headerLen);
+	size_t length_start = header_str.find("Content-Length: ");
+	string after_length = header_str.substr(length_start + 16);
+	size_t length_end = after_length.find("\r\n");
+	string data_length = after_length.substr(0, length_end);
+	cout << data_length << endl;
+}
+
 void HttpResponse::GET(string route, string realpath)
 {
 	if (err)
@@ -122,6 +132,54 @@ void HttpResponse::GET(string route, string realpath)
 	buf_ptr += length;
 }
 
-void HttpResponse::POST(string login, string pass)
+void HttpResponse::POST(string route, const char header[], const size_t headerLen)
 {
+	if (strncmp(header, "dopost", 6) != 0)
+		this->status = 404;
+
+	cout << "in post: " << this->status << endl;
+	string response_msg = "";
+	string login, pass;
+	bool success = false;
+
+
+	if (this->status == 200)
+	{
+		parseLoginAndPass(header, headerLen, login, pass);
+		if (login == "3150101233" && pass == "1233")
+			success = true;
+		if (login == "3150104435" && pass == "4435")
+			success = true;
+
+		if (success)
+			response_msg = "<html><body>µÇÂ½³É¹¦</body></html>";
+		else
+			response_msg = "<html><body>µÇÂ½Ê§°Ü</body></html>";
+	}
+
+	string msg_length = to_string(response_msg.size());
+
+	cout << response_msg << endl;
+
+	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Type: text/html\r\n", 25);
+	buf_ptr += 25;
+	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Length: ", 16);
+	buf_ptr += 16;
+	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, msg_length.c_str(), msg_length.size());
+	buf_ptr += msg_length.size();
+	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
+	buf_ptr += 2;
+
+	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
+	buf_ptr += 2;
+
+	if (this->status == 200)
+	{
+		if (buf_ptr + response_msg.size() > BUF_SIZE)
+		{
+			cout << "File too large" << endl;
+		}
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, response_msg.c_str(), response_msg.size());
+		buf_ptr += response_msg.size();
+	}
 }

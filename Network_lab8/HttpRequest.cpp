@@ -10,6 +10,8 @@ const int HttpRequest::POST = 1;
 
 HttpRequest::HttpRequest(const char header[], const size_t headerLen)
 {
+	std::cout << "Header: " << std::endl;
+	std::cout << header << std::endl;
 	const char* hPtr = header;
 	if (std::strncmp(hPtr, "GET", 3) == 0) {
 		this->method = HttpRequest::GET;

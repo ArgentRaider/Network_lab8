@@ -46,8 +46,11 @@ void WebAgent::work()
 			HttpResponse response = HttpResponse();
 			if (request.Method() == HttpRequest::GET)
 				response.GET(filePath, realPath);
-			else
-				;
+			else if (request.Method() == HttpRequest::POST)
+			{
+				std::cout << "POST" << std::endl;
+				response.POST(filePath, buffer, ret);
+			}
 			string responseText = response.toString();
 			std::cout << responseText << std::endl;
 			ret = send(client, responseText.c_str(), responseText.size(), 0);
