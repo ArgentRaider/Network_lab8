@@ -33,17 +33,19 @@ void HttpResponse::setStatusCode(const int & status)
 
 const string HttpResponse::toString()
 {
-	string res = string("HTTP/1.1 " + this->status);
+	string res = string("HTTP/1.1");
 	if (this->status == 200) {
-		res += " OK";
+		res += " 200 OK";
 	}
 	else if (this->status == 404) {
-		res += " Not Found";
+		res += " 404 Not Found";
 	}
-	res += "\r\n\r\n";
+	res += "\r\n";
+
 	if (this->status == 200) {
 		res += string(buffer, buf_ptr);
 	}
+
 	return std::move(res);
 }
 
@@ -66,30 +68,54 @@ void HttpResponse::GET(string route, string realpath)
 		this->status = 404;
 		return;
 	}
-	size_t slash_pos = route.find_first_of('/');
-	string folder = route.substr(0, slash_pos);
+	size_t slash_pos = route.find_last_of('\\');
+	string folder = route.substr(1, slash_pos - 1);
 	cout << "In folder: " << folder << endl;
 	int length = fileSize(realpath);
 	string file_length = to_string(length);
+	cout << "File length: " << file_length << endl;
 	if (folder.compare("txt") == 0)
 	{
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Type: text/plain\r\n", 26);
+		buf_ptr += 26;
 		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Length: ", 16);
 		buf_ptr += 16;
 		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, file_length.c_str(), file_length.size());
 		buf_ptr += file_length.size();
 		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
 		buf_ptr += 2;
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Type: text/txt\r\n", 24);
-		buf_ptr += 24;
+	}
+	else if (folder.compare("img") == 0)
+	{
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Type: image/jpeg\r\n", 26);
+		buf_ptr += 25;
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Length: ", 16);
+		buf_ptr += 16;
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, file_length.c_str(), file_length.size());
+		buf_ptr += file_length.size();
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
+		buf_ptr += 2;
+	}
+	else if (folder.compare("html") == 0)
+	{
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Type: text/html\r\n", 26);
+		buf_ptr += 25;
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Length: ", 16);
+		buf_ptr += 16;
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, file_length.c_str(), file_length.size());
+		buf_ptr += file_length.size();
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
+		buf_ptr += 2;
 	}
 
-	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n\r\n", 4);
-	buf_ptr += 4;
+	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
+	buf_ptr += 2;
 	if (buf_ptr + length > BUF_SIZE)
 	{
 		cout << "File too large" << endl;
 	}
 	fin.read(buffer + buf_ptr, length);
+	 // strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "A test text", 11);
 	buf_ptr += length;
 }
 

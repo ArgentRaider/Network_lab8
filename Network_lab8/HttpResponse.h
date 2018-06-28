@@ -17,6 +17,7 @@ public:
 	void POST(string login, string pass);
 
 private:
+	const int BUF_SIZE = 100000;
 	int status;
 	char *buffer;
 	size_t buf_ptr;
