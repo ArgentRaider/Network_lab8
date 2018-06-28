@@ -61,11 +61,20 @@ ifstream::pos_type HttpResponse::fileSize(string filename)
 void HttpResponse::parseLoginAndPass(const char header[], const size_t headerLen, string & login, string & pass)
 {
 	string header_str = string(header, headerLen);
-	size_t length_start = header_str.find("Content-Length: ");
-	string after_length = header_str.substr(length_start + 16);
-	size_t length_end = after_length.find("\r\n");
-	string data_length = after_length.substr(0, length_end);
-	std::cout << data_length << endl;
+
+	size_t data_start = header_str.find_last_of("\r\n");
+
+	string data = header_str.substr(data_start);
+	size_t login_start = data.find_first_of("=");
+	size_t login_end = data.find_first_of("&");
+	size_t pass_start = data.find_last_of("=");
+
+	login = data.substr(login_start, login_end - login_start);
+	pass = data.substr(pass_start);
+
+	cout << "data: " << data << endl;
+	cout << "login: " << login << endl;
+	cout << "pass: " << pass << endl;
 }
 
 void HttpResponse::GET(const string& route, const string& realpath)
