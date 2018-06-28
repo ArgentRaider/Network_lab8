@@ -42,6 +42,7 @@ const string HttpResponse::toString()
 	}
 	else if (this->status == 404) {
 		res += " Not Found\r\n";
+		res += "Content-Length: 0\r\n\r\n";
 	}
 
 	if (this->status == 200) {
@@ -64,7 +65,7 @@ void HttpResponse::GET(string route, string realpath)
 		this->status = 404;
 		return;
 	}
-	ifstream fin(realpath, ios_base::binary);
+	ifstream fin(realpath, std::ios_base::binary);
 	if (!fin.is_open())
 	{
 		this->status = 404;
@@ -80,37 +81,28 @@ void HttpResponse::GET(string route, string realpath)
 	string extension = fs::path(realpath).extension().string();
 	if (extension.compare(".txt") == 0)
 	{
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Type: text/plain\r\n", 26);
-		buf_ptr += 26;
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Length: ", 16);
-		buf_ptr += 16;
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, file_length.c_str(), file_length.size());
-		buf_ptr += file_length.size();
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
-		buf_ptr += 2;
+		const string content_type = "Content-Type: text/plain\r\n";
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, content_type.c_str(), content_type.size());
+		buf_ptr += content_type.size();
 	}
 	else if (extension.compare(".jpg") == 0)
 	{
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Type: image/jpeg\r\n", 26);
-		buf_ptr += 25;
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Length: ", 16);
-		buf_ptr += 16;
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, file_length.c_str(), file_length.size());
-		buf_ptr += file_length.size();
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
-		buf_ptr += 2;
+		const string content_type = "Content-Type: image/jpeg\r\n";
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, content_type.c_str(), content_type.size());
+		buf_ptr += content_type.size();
 	}
 	else if (extension.compare(".html") == 0)
 	{
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Type: text/html\r\n", 26);
-		buf_ptr += 25;
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Length: ", 16);
-		buf_ptr += 16;
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, file_length.c_str(), file_length.size());
-		buf_ptr += file_length.size();
-		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
-		buf_ptr += 2;
+		const string content_type = "Content-Type: text/html\r\n";
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, content_type.c_str(), content_type.size());
+		buf_ptr += content_type.size();
 	}
+	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Length: ", 16);
+	buf_ptr += 16;
+	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, file_length.c_str(), file_length.size());
+	buf_ptr += file_length.size();
+	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
+	buf_ptr += 2;
 
 	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
 	buf_ptr += 2;

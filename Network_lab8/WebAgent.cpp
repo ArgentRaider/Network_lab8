@@ -49,7 +49,6 @@ void WebAgent::work()
 			else
 				;
 			string responseText = response.toString();
-			std::cout << responseText << std::endl;
 			ret = send(client, responseText.c_str(), responseText.size(), 0);
 		}
 	}
