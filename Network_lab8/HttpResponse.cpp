@@ -64,7 +64,7 @@ void HttpResponse::GET(string route, string realpath)
 		this->status = 404;
 		return;
 	}
-	ifstream fin(realpath);
+	ifstream fin(realpath, ios_base::binary);
 	if (!fin.is_open())
 	{
 		this->status = 404;
