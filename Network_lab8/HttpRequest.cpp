@@ -28,6 +28,15 @@ HttpRequest::HttpRequest(const char header[], const size_t headerLen)
 	const char* tmp = hPtr;
 	while (*tmp != ' ' && *tmp != 0) tmp++;
 	filePath = string(hPtr, tmp - hPtr);
+	
+	string fulltext(header, headerLen);
+	size_t argsPos = fulltext.find("\r\n\r\n");
+	if (argsPos != std::string::npos) {
+		args = fulltext.substr(argsPos + 4);
+	}
+	else {
+		args = "";
+	}
 }
 
 
@@ -43,5 +52,28 @@ const int HttpRequest::Method()
 const string & HttpRequest::FilePath()
 {
 	return this->filePath;
+}
+
+const string HttpRequest::operator[](const string & attr)
+{
+	string query = attr + "=";
+	string result;
+	size_t pos = 0, endPos = 0;
+	if ((pos = args.find(query)) == 0) {
+		pos += query.size();
+	}
+	else if ((pos = args.find("&" + query)) != std::string::npos) {
+		pos += query.size() + 1;
+	}
+
+	if (pos > 0) {
+		endPos = args.substr(pos).find('&');
+		result = args.substr(pos, endPos);
+	}
+	else {
+		result = "";
+	}
+
+	return result;
 }
 

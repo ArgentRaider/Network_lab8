@@ -65,10 +65,10 @@ void HttpResponse::parseLoginAndPass(const char header[], const size_t headerLen
 	string after_length = header_str.substr(length_start + 16);
 	size_t length_end = after_length.find("\r\n");
 	string data_length = after_length.substr(0, length_end);
-	cout << data_length << endl;
+	std::cout << data_length << endl;
 }
 
-void HttpResponse::GET(string route, string realpath)
+void HttpResponse::GET(const string& route, const string& realpath)
 {
 	if (err)
 	{
@@ -83,10 +83,10 @@ void HttpResponse::GET(string route, string realpath)
 	}
 	size_t slash_pos = route.find_last_of('\\');
 	string folder = route.substr(1, slash_pos - 1);
-	cout << "In folder: " << folder << endl;
+	std::cout << "In folder: " << folder << endl;
 	int length = fileSize(realpath);
 	string file_length = to_string(length);
-	cout << "File length: " << file_length << endl;
+	std::cout << "File length: " << file_length << endl;
 
 	string extension = fs::path(realpath).extension().string();
 	if (extension.compare(".txt") == 0)
@@ -118,60 +118,50 @@ void HttpResponse::GET(string route, string realpath)
 	buf_ptr += 2;
 	if (buf_ptr + length > BUF_SIZE)
 	{
-		cout << "File too large" << endl;
+		std::cout << "File too large" << endl;
 	}
 	fin.read(buffer + buf_ptr, length);
 	buf_ptr += length;
 }
 
-void HttpResponse::POST(string route, const char header[], const size_t headerLen)
+void HttpResponse::POST(const string& login, const string& pass, const string& path)
 {
-	if (strncmp(header, "dopost", 6) != 0)
-		this->status = 404;
-
-	cout << "in post: " << this->status << endl;
-	string response_msg = "";
-	string login, pass;
-	bool success = false;
-
-
-	if (this->status == 200)
-	{
-		parseLoginAndPass(header, headerLen, login, pass);
-		if (login == "3150101233" && pass == "1233")
+	if (path.substr(path.size() - 6).compare("dopost") == 0) {		
+		bool success = false;
+		string response_msg = "";
+		if (login.compare("3150101233") == 0 && pass.compare("1233") == 0)
 			success = true;
-		if (login == "3150104435" && pass == "4435")
+		if (login.compare("3150104435") == 0 && pass.compare("4435") == 0)
 			success = true;
 
 		if (success)
 			response_msg = "<html><body>µÇÂ½³É¹¦</body></html>";
 		else
 			response_msg = "<html><body>µÇÂ½Ê§°Ü</body></html>";
-	}
 
-	string msg_length = to_string(response_msg.size());
+		const string content_type = "Content-Type: text/html\r\n";
+		const string content_length = std::to_string(login.size() + pass.size() + 1);
+		string msg_length = to_string(response_msg.size());
 
-	cout << response_msg << endl;
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, content_type.c_str(), content_type.size());
+		buf_ptr += content_type.size();
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Length: ", 16);
+		buf_ptr += 16;
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, msg_length.c_str(), msg_length.size());
+		buf_ptr += msg_length.size();
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
+		buf_ptr += 2;
 
-	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Type: text/html\r\n", 25);
-	buf_ptr += 25;
-	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "Content-Length: ", 16);
-	buf_ptr += 16;
-	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, msg_length.c_str(), msg_length.size());
-	buf_ptr += msg_length.size();
-	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
-	buf_ptr += 2;
-
-	strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
-	buf_ptr += 2;
-
-	if (this->status == 200)
-	{
+		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, "\r\n", 2);
+		buf_ptr += 2;
 		if (buf_ptr + response_msg.size() > BUF_SIZE)
 		{
-			cout << "File too large" << endl;
+			std::cout << "File too large" << endl;
 		}
 		strncpy_s(buffer + buf_ptr, BUF_SIZE - buf_ptr, response_msg.c_str(), response_msg.size());
 		buf_ptr += response_msg.size();
+	}
+	else {
+		this->status = 404;
 	}
 }
